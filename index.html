@@ -1,10 +1,444 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-	<meta name="description" content="ts-out">
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="Withdraw from token.store">
+
+	<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
+	<link rel="shortcut icon" href="img/favicon.ico">
+
 	<title>ts-out</title>
+
+	<link href="css/jquery-datatables-bootstrap.min.css" rel="stylesheet">
+	<link href="css/font-awesome.min.css" rel="stylesheet">
+	<link href="css/style.css" rel="stylesheet">
+</head>
+
 <body>
-index.html placeholder
+	<!-- Begin page content -->
+	<div class="container">
+		<header>
+			<h1>
+				<img src="img/tokenstore.svg" alt="logo">
+				ts-out <label class="label label-danger">BETA</label>
+			</h1>
+		</header>
+
+		<main>
+
+			<div class="firstPage">
+				<!-- Page 1, selecting and unlocking a wallet -->
+				<div class="walletSelect whiteRect row">
+					<div class="col-md-12">
+						<p style="color:red">This project is in beta, use at your own risk. </p>
+						<h4> View and withdraw your ERC20 token balances on the
+							<a href="https://etherscan.io/address/0x1ce7ae555139c5ef5a57cc8d814a867ee6ee33d8" target="_blank" rel="noopener noreferrer">token.store</a> ethereum DEX</h4>
+					</div>
+				</div>
+				<div class="walletSelect row">
+					<!-- Selection options for user wallets -->
+					<div class="col-md-6">
+						<div class="col-md-12 whiteRect">
+							<h3>Select your token.store wallet</h3>
+							<a href="javascript:void(0)" class="col-md-12 walletSelectButton whiteRect list-group-item" onclick="loadPublic()">
+								<span class="label label-danger walletLabel">Read only</span>
+								<h4 class="list-group-item-heading">Ethereum Address </h4>
+								<div class="hidden-xs">
+									<h4><i class="fa fa-shield walletIcon" aria-hidden="true"></i></h4>
+									<p class="list-group-item-text">View ERC20 balances</p>
+								</div>
+							</a>
+							<a href="javascript:void(0)" class="col-md-12 walletSelectButton whiteRect list-group-item" onclick="loadMetamask()">
+								<span class="label label-success walletLabel">Interactive</span>
+								<h4 class="list-group-item-heading">MetaMask (Web3) <img id="metamaskLogo" src="img/metamask.svg" alt="metamask logo"> </h4>
+								<div class="hidden-xs">
+									<h4><i class="fa fa-shield walletIcon" aria-hidden="true"></i></h4>
+									<p class="list-group-item-text">View & withdraw ERC20 balances</p>
+								</div>
+							</a>
+							<a href="javascript:void(0)" class="col-md-12 walletSelectButton whiteRect list-group-item" onclick="loadKey()">
+								<span class="label label-success walletLabel">Interactive</span>
+								<h4 class="list-group-item-heading">Private Key</h4>
+								<div class="hidden-xs">
+									<h4><i class="fa fa-warning walletIcon" aria-hidden="true"></i></h4>
+									<p class="list-group-item-text">View & withdraw ERC20 balances</p>
+								</div>
+							</a>
+						</div>
+					</div>
+					<div class="col-md-6">
+						<!-- Selection results for user wallets -->
+						<div class="col-md-12 whiteRect hiddenOverflow">
+							<h3 id="walletResultTitle">Your address:</h3>
+							<button type="button" disabled id="refreshWalletResult" class="hidden btn btn-default">
+								<i class="fa fa-repeat"></i>
+							</button>
+							<br>
+							<br>
+							<div class="walletResult" id="noWallet">
+								<h4>Select a wallet option to continue</h4>
+							</div>
+							<div class="walletResult hidden" id="publicWallet">
+								<p> With an address you can only view your exchange balances. You need to use another option if you want to withdraw.
+								<div class="form-group">
+									<label class="control-label" for="addressInput">Enter your address</label>
+									<input type="text" class="form-control" id="addressInput" placeholder="Ethereum Address (42 characters, 0xabc123...)" onchange="checkAddressInput(this.value, true)"
+										oninput="checkAddressInput(this.value, false)" autocomplete="off">
+								</div>
+								<div id="addressError" class="alert alert-danger hidden noMarginAlert" role="alert">
+								</div>
+								<div id="publicAddress" class="addressWell well"></div>
+							</div>
+							<div class="walletResult hidden" id="metamaskWallet">
+								<div id="metamaskWarning" class="alert alert-warning hidden" role="alert"></div>
+								<span id="metamaskContents"></span>
+								<div id="metamaskAddress" class="addressWell well"></div>
+							</div>
+							<div class="walletResult hidden" id="privateWallet">
+								<div class="alert alert-warning" role="alert">
+									<h4 class="alert-heading">Warning</h4>
+									<p>Entering your Private Key on any website is dangerous. Malware or phishing can result in a loss of funds. Continue at your own risk.</p>
+
+									<hr>
+									<p>We recommend importing your key into a wallet like <a class="alert-link" href="https://metamask.io/download.html" target="_blank"
+											rel="noopener noreferrer">MetaMask</a>
+									</p>
+								</div>
+								<div class="form-group">
+									<label class="control-label" for="keyInput">Enter or paste your key</label>
+									<div class="input-group col-sm-12">
+										<input type="password" class="form-control" id="keyInput" placeholder="Private key (64 letters or numbers)" onchange="checkKeyInput(this.value, true)"
+											oninput="checkKeyInput(this.value, false)" autocomplete="off">
+										<span class="input-group-btn">
+											<button type="button" onclick="showHideKey()" class="btn btn-default">
+												<i id="keyToggleIcon" class="fa fa-eye" aria-hidden="true"></i>
+											</button>
+										</span>
+									</div>
+								</div>
+								<div id="keyError" class="alert alert-danger hidden noMarginAlert" role="alert">
+								</div>
+								Your Private Key does not leave this page and will not be saved.
+								<div id="keyAddress" class="addressWell well hidden"></div>
+							</div>
+							<br>
+							<button disabled id="continueWallet" onclick="finishUnlock()" class="hidden btn btn-primary">Continue</button>
+
+						</div>
+					</div>
+				</div>
+			</div> <!-- end of firsPage -->
+
+
+			<div class="secondPage hidden">
+				<!-- Page 2, exchange balances and withdrawals -->
+				<div class="selectedWallet whiteRect">
+					<div class="hiddenOverflow">
+						<div id="addressImage" class="addrImage"></div>
+						<h4><span id="selectedWalletAddress">0x.............</span></h4>
+						<h4>
+							<i id="ethWalletSpinner" class="fa fa-cog fa-spin fa-1x fa-fw"></i><span id="ethwalletbalance" class="hidden">0</span> ETH
+						</h4>
+						<span style="color:lightGray;" id="nonce"></span>
+					</div>
+					<div class="">
+						<button id="restartButton" onclick="resetWallet()" type="button" class="btn btn-default">Change wallet</button>
+					</div>
+				</div>
+				<!-- error messages -->
+				<div>
+					<div id="publicAddrError" class="readOnlyError accountAlert alert alert-warning hidden noMarginAlert" role="alert">You are using a Read-only address, you can not make withdrawals.
+					</div>
+					<div id="ethBalanceError" class="accountAlert alert alert-danger hidden noMarginAlert" role="alert">Your ETH balance is 0, you can not pay the gas cost for any withdraw
+						transactions.
+					</div>
+				</div>
+
+				<div class="balanceCheck row">
+					<div class="col-md-6">
+						<div class="col-md-12 whiteRect">
+							<h3>Token.store balances <i id="balanceLoadSpinner" class="hidden fa fa-cog fa-spin fa-1x fa-fw"></i></h3>
+							<button type="button" id="balancesRefreshButton" onclick="fillBalanceTable()" class="btn btn-default" disabled>
+								<i id="balancesRefreshIcon" class="fa fa-repeat"></i>
+							</button>
+							<br>
+							<br>
+							<br>
+							<div id="balanceLoadError" class="alert alert-warning hidden" role="alert">Some token balances may have failed to load, retry later.</div>
+							<table id="balancesTable" class="table table-hover table-striped table-bordered" cellspacing="0" width="100%">
+								<thead>
+									<tr>
+										<th>Token</th>
+										<th>Exchange</th>
+										<th>Withdraw</th>
+										<th>Wallet</th>
+									</tr>
+								</thead>
+								<tbody>
+								</tbody>
+							</table>
+							<p>This will only show tokens for which you have a deposited balance.</p>
+							<p> Think you are missing a token? </p> <button id="addTokenButton" onclick="showTokenModal()" class="btn btn-default">Add Token</button>
+
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="col-md-12 whiteRect">
+							<h3>Withdrawals sent</h3>
+							<button type="button" class="btn btn-default hidden" disabled id="withdrawRefreshButton" onclick="reloadWithdrawsTable()">
+								<i id="withdrawRefreshIcon" class="fa fa-repeat"></i>
+							</button>
+							<br>
+							<br>
+							<br>
+							<table id="withdrawsTable" class="table table-hover table-striped table-bordered" cellspacing="0" width="100%">
+								<thead>
+									<tr>
+										<th>Token</th>
+										<th>Amount</th>
+										<th>Hash</th>
+										<th>Status</th>
+										<th>Created</th>
+									</tr>
+								</thead>
+								<tbody>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+	</div>
+
+	<footer class="footer">
+		<div class="container">
+			<span class="text-muted">This project is in beta, use at your own risk.</span>
+		</div>
+	</footer>
+
+
+	<!-- Modal popup windows -->
+
+	<!-- Modal window for withdrawals, several input fields -->
+	<div id="withdrawModal" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title">Withdraw
+						<span class="withdrawTokenName"></span> from token.store</h4>
+				</div>
+
+				<div class="modal-body">
+					<form class="form" role="form">
+						<div id="modalReadOnly" class="readOnlyError accountAlert alert alert-warning hidden" role="alert">
+							You are using a Read-only address, you cannot send this withdraw transaction.
+						</div>
+						<div class="form-group withdrawStep1">
+							<label class="col-sm-3 control-label" for="withdrawAvailable">Available</label>
+							<div class="input-group col-sm-8">
+								<input type="number" id="withdrawAvailable" class="form-control" readonly>
+								<span class="input-group-addon">
+									<span class="withdrawTokenName"></span>
+								</span>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label" for="withdrawAmountInput">Amount</label>
+							<div class="input-group col-sm-8">
+								<span class="input-group-btn withdrawStep1">
+									<button type="button" onclick="setMaxBalance()" class="btn btn-default">Max</button>
+								</span>
+								<input type="number" min="0" id="withdrawAmountInput" class="form-control" placeholder="Withdraw amount" onchange="validateWithdraw()">
+								<span class="input-group-addon">
+									<span class="withdrawTokenName"></span>
+								</span>
+							</div>
+						</div>
+						<div class="withdrawStep1">
+							<hr>
+							<br>
+							<br>
+						</div>
+						<div class="form-group withdrawStep1">
+							<label class="col-sm-3 control-label" for="withdrawGasPrice">Gas price (speed)</label>
+							<div class="input-group col-sm-8">
+
+								<span class="input-group-btn">
+									<button type="button" onclick="setGasPrice(0)" class="btn btn-default">Low</button>
+									<button type="button" onclick="setGasPrice(1)" class="btn btn-default">Avg</button>
+									<button type="button" onclick="setGasPrice(2)" class="btn btn-default">Fast</button>
+								</span>
+								<input type="number" min="0" id="withdrawGasPrice" class="form-control" placeholder="Gas price" value="30" onchange="validateWithdraw()">
+								<span class="input-group-addon">Gwei</span>
+							</div>
+						</div>
+						<div class="withdrawStep1">
+							<div id="gasPriceWarning" class="alert alert-warning withdrawError hidden" role="alert">
+								<p>Failed to update Low/Avg/Fast gas prices.</p>
+								<p>Check more accurate prices on <a href="https://ethgasstation.info/" target="_blank" rel="noopener noreferrer">EthGasStation</a> or <a
+										href="https://www.etherchain.org/tools/gasPriceOracle" target="_blank" rel="noopener noreferrer">EtherChain</a></p>
+							</div>
+						</div>
+						<div class="form-group withdrawStep1">
+							<label class="col-sm-3 control-label" for="withdrawGasLimit">Gas limit</label>
+							<div class="input-group col-sm-8">
+								<span class="input-group-btn">
+									<button type="button" onclick="estimateGasCurrentWithdraw()" class="btn btn-default">
+										<span id="gaslimitCalc">Calculate</span><i id="gaslimitLoad" class="hidden fa fa-cog fa-spin fa-1x fa-fw"></i></button>
+								</span>
+								<input type="number" step="1000" id="withdrawGasLimit" class="form-control" placeholder="Gas limit" value="250000" onchange="validateWithdraw()">
+							</div>
+						</div>
+						<div id="gasLimitError" class="alert alert-danger withdrawError hidden" role="alert">
+							<p>This transaction will <b>FAIL</b> (run out of gas).</p>
+							<ul>
+								<li>Either the token cannot be moved (it is locked, paused or broken).</li>
+								<li>Or your amount was higher than your balance, refresh your balance and try again.</li>
+							</ul>
+						</div>
+						<div class="withdrawStep1">
+							<div id="gasLimitWarning" class="alert alert-warning withdrawError hidden" role="alert">
+								<p>Gas limit calculation failed, please try again.</p>
+								<p> You can also try this default value or set it yourself.</p>
+							</div>
+						</div>
+						<div class="form-group withdrawStep1">
+							<label class="col-sm-3 control-label" for="ethbalance">Available gas</label>
+							<div class="input-group col-sm-8">
+								<input type="number" id="ethbalance" class="form-control" readonly>
+								<span class="input-group-addon">
+									<span>ETH</span>
+								</span>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label" for="estimatecost">Max cost</label>
+							<div class="input-group col-sm-8">
+								<input type="number" id="estimatecost" class="form-control" readonly>
+								<span class="input-group-addon">ETH</span>
+							</div>
+						</div>
+						<div id="withdrawGasError" class="alert alert-danger withdrawError hidden" role="alert">
+							<p>Your ETH balance is too low to pay the gas cost.</p>
+						</div>
+						<div class="withdrawStep1">
+							<p class="col-sm-9 withdrawStep1"> A withdraw will show up as a 0 ETH transaction <b>to</b> the <a
+									href="https://etherscan.io/address/0x1ce7ae555139c5ef5a57cc8d814a867ee6ee33d8" target="_blank" rel="noopener noreferrer">token.store</a> contract.</p>
+							<br>
+							<br>
+						</div>
+
+						<div id="confirmWarning" class="alert alert-warning withdrawStep2 hidden" role="alert">
+							<p>Clicking 'Withdraw' will send the transaction, this process is <b>irreversible</b>.</p>
+						</div>
+
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default withdrawStep1" data-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-default withdrawStep2 hidden" onclick="revertWithdraw()">Back</button>
+					<button type="button" id="withdrawConfirm" class="btn btn-primary withdrawStep1" onclick="" disabled>Confirm</button>
+					<button type="button" id="withdrawConfirm2" class="btn btn-primary withdrawStep2 hidden" onclick="" disabled>Withdraw</button>
+
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Modal window to show during metaMask confirmation popups -->
+	<div id="confirmModal" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title">Awaiting confirmation</h4>
+				</div>
+				<div class="modal-body">
+					<div id="metamaskConfirm">Confirm or reject the withdraw transaction in your MetaMask/Web3 Wallet.</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- modal to add a new ERC20 token -->
+	<div id="addTokenModal" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title">Add a new token</h4>
+				</div>
+				<div class="modal-body">
+					<form class="form" role="form">
+						<div class="row">
+							<div class="form-group col-xs-12">
+								<label class="col-xs-12 col-sm-3 control-label" for="tokenAddressInput">Contract address</label>
+								<div class="input-group col-xs-12 col-sm-8">
+									<input type="text" id="tokenAddressInput" class="form-control" placeholder="Ethereum Address (42 characters, 0xabc123...)" value=""
+										onchange="validateTokenAddress()" oninput="validateTokenAddress(true)" autocomplete="off">
+								</div>
+							</div>
+							<div class="col-xs-12">
+								<div id="tokenAddressError" class="alert alert-danger tokenError" role="alert"></div>
+								<div id="tokenDuplicateError" class="alert alert-danger tokenError" role="alert">
+									This token is already included.
+								</div>
+							</div>
+							<div class="tokenDetails col-xs-12">
+								<hr>
+								<div id="tokenLoadError" class="alert alert-warning tokenError" role="alert">
+									Could not load token details. Network error or the contract is not a valid ERC20 token.
+								</div>
+							</div>
+
+							<div class="form-group tokenDetails col-md-12">
+								<label class="col-xs-12 col-sm-3 control-label" for="symbolInput">Token Symbol</label>
+								<div class="input-group col-xs-12 col-sm-8">
+									<span class="input-group-addon tokenDetailLoad hidden"><i class="fa fa-cog fa-spin fa-1x fa-fw"></i><span class="sr-only">Loading...</span></span>
+									<input type="text" id="symbolInput" class="form-control" placeholder="Token Symbol (ETH, BAT, ZRX, ...)" readonly>
+								</div>
+							</div>
+							<div class="form-group tokenDetails col-xs-12">
+								<label class="col-xs-12 col-sm-3 control-label" for="decimalInput">Decimals</label>
+								<div class="input-group col-xs-12 col-sm-8">
+									<span class="input-group-addon tokenDetailLoad hidden"><i class="fa fa-cog fa-spin fa-1x fa-fw"></i><span class="sr-only">Loading...</span></span>
+									<input type="number" step="1" id="decimalInput" class="form-control" placeholder="Token decimals (0-18)" value="" readonly>
+								</div>
+							</div>
+							<div class="col-xs-12">
+								<span class="col-xs-12">New tokens will be included in the next balance reload.</span>
+
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+					<button type="button" id="tokenConfirm" class="btn btn-primary" onclick="addModalToken()" disabled>Add</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- external js-->
+	<script type="text/javascript" src="js/lib/jquery-datatables-bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/lib/blockies-base64.min.js"></script>
+	<script type="text/javascript" src="js/lib/ethers-v4.min.js"></script>
+
+	<!-- custom js -->
+	<script type="text/javascript" src="js/tokens.js"></script>
+	<script type="text/javascript" src="js/config.js"></script>
+	<script type="text/javascript" src="js/withdraw.js"></script>
+	<script type="text/javascript" src="js/main.js"></script>
+
 </body>
 
 </html>
