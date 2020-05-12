@@ -50,6 +50,7 @@ function setupDatatables() {
 	$("#balancesTable").DataTable({
 		"sDom": '<"row view-filter"<"col-sm-12"<"pull-left"l><"pull-right"f><"clearfix">>>t<"row view-pager"<"col-sm-12"<"text-center"p>>>',
 		"info": false,
+		"scrollX": true,
 		"order": [[1, "desc"]],
 		"lengthMenu": [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
 		"language": {
@@ -76,6 +77,7 @@ function setupDatatables() {
 	$("#withdrawsTable").DataTable({
 		"sDom": '<"row view-filter"<"col-sm-12"<"pull-left"l><"pull-right"f><"clearfix">>>t<"row view-pager"<"col-sm-12"<"text-center"p>>>',
 		"info": false,
+		"scrollX": true,
 		"order": [[4, "desc"]],
 		"lengthMenu": [[5, 10, 25], [5, 10, 25]],
 		"language": {
@@ -118,6 +120,8 @@ function loadMetamask(noTrigger = false) {
 
 	$("#continueWallet").addClass("hidden");
 	$("#continueWallet").attr("disabled", true);
+
+	scrollToWalletResult();
 
 	//triggered change on logout, don"t trigger the popup form checkMetamask
 	if (noTrigger) {
@@ -193,6 +197,7 @@ function loadPublic() {
 	$("#continueWallet").attr("disabled", true);
 
 	checkAddressInput($("#addressInput").val());
+	scrollToWalletResult();
 }
 
 //select private key option
@@ -210,6 +215,7 @@ function loadKey() {
 	$("#continueWallet").attr("disabled", true);
 
 	checkKeyInput($("#keyInput").val());
+	scrollToWalletResult();
 }
 
 function showHideKey() {
@@ -276,6 +282,15 @@ function checkKeyInput(string, showError) {
 	} else {
 		$("#keyError").addClass("hidden");
 		hideContinue("#keyAddress");
+	}
+}
+
+//scroll to wallet result div on mobile devices where it is verticaly stacked
+function scrollToWalletResult() {
+	if ($("#mobileTest").is(":hidden")) {
+		$([document.documentElement, document.body]).animate({
+			scrollTop: $("#walletResultTitle").offset().top
+		}, "fast");
 	}
 }
 
@@ -382,6 +397,8 @@ function finishUnlock() {
 		//start loading balances table
 		fillBalanceTable();
 		reloadWithdrawsTable(true);
+
+		$(window).scrollTop(0); //scroll to top for mobile devices & small windows
 	}
 }
 
@@ -397,6 +414,8 @@ function resetWallet() {
 
 	hide("#ethWalletSpinner", false);
 	hide("#ethwalletbalance", true);
+
+	$(window).scrollTop(0); //scroll to top for mobile devices & small windows
 }
 
 // wrapper for jquery addClass removeClass "hidden"
