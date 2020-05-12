@@ -563,7 +563,6 @@ function drawBalancesTable() {
 	// fill the balances table
 	for (let i = 0; i < balanceTokens.length; ++i) {
 		const token = balanceTokens[i];
-		let disabled = true;
 
 		let walletBalance = "-";
 		if (currentAccount.walletBalances && currentAccount.walletBalances.hasOwnProperty(token.address)) {
@@ -579,7 +578,6 @@ function drawBalancesTable() {
 		let exchangeBalance = "-";
 		if (currentAccount.exchangeBalances && currentAccount.exchangeBalances.hasOwnProperty(token.address)) {
 			exchangeBalance = currentAccount.exchangeBalances[token.address];
-			disabled = exchangeBalance.lte(0);
 			if (exchangeBalance.lt(0)) {
 				exchangeBalance = "-";
 				loadErrors = true;
@@ -588,21 +586,17 @@ function drawBalancesTable() {
 			}
 		}
 
-		if (_W.isAccountReadOnly()) {
-			disabled = true;
-		}
-
 		if (loadErrors) {
 			hide("#balanceLoadError", false);
 		}
 
 		let disabledButton = "";
-		if (disabled || exchangeBalance === "-") {
-			disabledButton = ' disabled ';
+		if (exchangeBalance === "-") {
+			disabledButton = 'disabled';
 		} else {
 			disabledButton = 'onclick="showWithdraw(\'' + token.address.toLowerCase() + '\')"';
 		}
-		let buttonDisplay = '<button class="withdrawButton btn btn-primary btn-sm"' + disabledButton + '><i class="fa fa-arrow-right" style="font-size:15px"></i></button>';
+		let buttonDisplay = '<button class="withdrawButton btn btn-primary btn-sm" ' + disabledButton + ' ><i class="fa fa-arrow-right" style="font-size:15px"></i></button>';
 
 		dt.row.add([getTokenLink(token), exchangeBalance, buttonDisplay, walletBalance]);
 	}
