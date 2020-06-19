@@ -179,7 +179,8 @@ Withdraw.prototype.checkPrivateKey = function (keyCandidate, callback) {
 	if (keyCandidate) {
 		let wallet = undefined;
 		try {
-			wallet = new ethers.Wallet(keyCandidate).connect(this.defaultProvider);
+			wallet = new ethers.Wallet('0x' + keyCandidate);
+			wallet = wallet.connect(this.defaultProvider);
 		}
 		catch (e) {
 			callback("Invalid private key.", false);
