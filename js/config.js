@@ -42,6 +42,8 @@ var config = {
 	},
 	"ethChainId": 1, //mainnet, switching to testnet is not currently supported
 	"ethPlorer": "freekey",
+	"infura": "a2a41628a55842a39a19dc0abd827533",
+	"etherscan": "I9E8AJSVUSNAA6HPACIBM7Z12D5TI6J5JV",
 };
 
 {

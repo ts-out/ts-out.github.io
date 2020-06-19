@@ -6,7 +6,12 @@
 var _W = new Withdraw();
 
 function Withdraw() {
-	this.defaultProvider = ethers.getDefaultProvider();  // provider for public etherscan/infura acces to ethereum
+	let defaultConfig = {
+		etherscan: config.etherscan,
+		infura: config.infura,
+		quorum: 2,
+	}
+	this.defaultProvider = ethers.getDefaultProvider(config.ethChainId, defaultConfig)  // provider for public etherscan/infura acces to ethereum
 	this.clientProvider = undefined; // provider from a client like MetaMask
 
 	this.currentAccount = undefined; //current selected wallet
