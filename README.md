@@ -19,7 +19,7 @@ The token.store ETH decentralized exchange is shutting down on June 22 2020.
 Check the token.store media for info:  
 - Exchange [website](https://token.store)
 - [Twitter](https://twitter.com/TokenDotStore) 
-- Support on [Telegam](t.me/thetokenstore)
+- Support on [Telegram](https://t.me/thetokenstore)
 
 
 
