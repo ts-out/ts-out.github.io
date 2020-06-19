@@ -48,7 +48,7 @@ Withdraw.prototype.initAccount = function (address, type, signer) {
 }
 
 Withdraw.prototype.toBigNumber = function (num) {
-	return ethers.utils.bigNumberify(num);
+	return ethers.BigNumber.from(num);
 }
 
 // check if metamask is detected, locked, unlocked  (reuslt, detected = false, unlocked = false)
@@ -68,8 +68,8 @@ Withdraw.prototype.checkMetamask = function (callback) {
 
 			// adress is already exposed, soon deprecated?
 			if (window.ethereum.selectedAddress) {
-				this.clientProvider = new ethers.providers.Web3Provider(window.ethereum);
-				this.initAccount(window.ethereum.selectedAddress, "metamask", this.clientProvider.getSigner());
+				this.clientProvider = new ethers.providers.Web3Provider(window.ethereum).getSigner();
+				this.initAccount(window.ethereum.selectedAddress, "metamask", this.clientProvider);
 				callback(window.ethereum.selectedAddress, true, true);
 				return;
 			}
@@ -101,8 +101,8 @@ Withdraw.prototype.checkMetamask = function (callback) {
 						_that.ethereumEnablePending = false;
 						enableResponse = true;
 						if (typeof accounts !== "undefined" && accounts.length > 0) {
-							_that.clientProvider = new ethers.providers.Web3Provider(window.ethereum);
-							_that.initAccount(accounts[0], "metamask", _that.clientProvider.getSigner());
+							_that.clientProvider = new ethers.providers.Web3Provider(window.ethereum).getSigner();
+							_that.initAccount(accounts[0], "metamask", _that.clientProvider);
 							callback(accounts[0], true, true);
 						} else {
 							console.log("bad enable response");
@@ -655,7 +655,6 @@ Withdraw.prototype.sendWithdraw = async function (token, amount, gasPrice, gasLi
 		let txOverrides = {
 			gasLimit: gasLimit,
 			gasPrice: gasPrice,
-			chainId: config.ethChainId,
 		};
 		//ignore nonce for metamask, and if we failed to load one, let ether.js figure out the nonce
 		if (this.currentAccount.type !== "metamask" && this.currentAccount.nonce > -1) {
@@ -764,9 +763,9 @@ Withdraw.prototype.encodeWithdraw = function (token, amount) {
 		let iface = new ethers.utils.Interface(config.ABI.exchange);
 		let value = amount;
 		if (token.address.toLowerCase() == config.ETH.address.toLowerCase()) {
-			callData = iface.functions.withdraw.encode([value]);
+			callData = iface.encodeFunctionData("withdraw", [value]);
 		} else {
-			callData = iface.functions.withdrawToken.encode([token.address, value]);
+			callData = iface.encodeFunctionData("withdrawToken", [token.address, value]);
 		}
 	} else {
 		console.log("encoding invalid withdraw");
@@ -784,12 +783,12 @@ Withdraw.prototype.getWithdrawFromLogs = function (logs) {
 				let decoded = iface.parseLog(logs[i]);
 
 				if (decoded && decoded.name == "Withdraw") {
-					let tokenAddr = decoded.values.token.toLowerCase();
+					let tokenAddr = decoded.args.token.toLowerCase();
 					let token = config.tokenMap[tokenAddr];
 					if (token) {
-						let amount = decoded.values.amount;
-						let balance = decoded.values.balance;
-						let user = decoded.values.user.toLowerCase();
+						let amount = decoded.args.amount;
+						let balance = decoded.args.balance;
+						let user = decoded.args.user.toLowerCase();
 
 						return { token: token, user: user, amount: amount, exchangeBalance: balance };
 					}
