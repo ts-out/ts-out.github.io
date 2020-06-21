@@ -983,7 +983,7 @@ function addWithdrawTransaction(user, token, amount) {
 
 
 	let dt = $("#withdrawsTable").dataTable().api();
-	dt.row.add([getTokenLink(token), _W.weiToUnit(tx.amount), getHashLink(tx.hash), tx.state, formatDate(tx.created)]);
+	dt.row.add([getTokenLink(token), _W.weiToUnit(tx.amount, token), getHashLink(tx.hash), tx.state, formatDate(tx.created)]);
 	dt.draw();
 
 	return _W.withdrawTransactions.length - 1;
@@ -1087,7 +1087,7 @@ function drawWithdrawsTable() {
 		let user = _W.currentAccount.address;
 		_W.withdrawTransactions.forEach(tx => {
 			if (user === tx.from) {
-				dt.row.add([getTokenLink(tx.token), _W.weiToUnit(tx.amount), getHashLink(tx.hash), tx.state, formatDate(tx.created)]);
+				dt.row.add([getTokenLink(tx.token), _W.weiToUnit(tx.amount, tx.token), getHashLink(tx.hash), tx.state, formatDate(tx.created)]);
 			}
 		});
 	}
