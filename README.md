@@ -39,6 +39,9 @@ For example for a swap to a new smart contract or a different mainnet.
 
 Contact the token creator with your issue, nobody else can move those tokens for you.
 
+ts-out will prevent you from sending a failing transaction with the following warning:  
+![failure warning](https://github.com/ts-out/ts-out.github.io/raw/master/img/readme/fail.png)
+
 For an example of what a locked token looks like, see [this token](https://etherscan.io/address/0xe94327d07fc17907b4db788e5adf2ed424addff6). 
 - The majority of the transactions to this token fail
 - The last token transfer was in july 2018
