@@ -1,0 +1,4 @@
+This is a Brave Rewards publisher verification file.
+
+Domain: ts-out.github.io
+Token: e30cd54a2f350fccc395369162617d54d409712ee5f91914e4bb276341a853ed
