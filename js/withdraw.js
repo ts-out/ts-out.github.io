@@ -66,83 +66,78 @@ Withdraw.prototype.checkMetamask = function (callback) {
 		const text = 'No web3 client detected, install or enable <a class="alert-link" href="https://metamask.io/download.html" target="_blank" rel="noopener noreferrer">MetaMask</a>';
 		callback(text, false, false);
 	}
-	// web 3 client detected
+	// MetaMask or web 3 client detected
 	else {
-		//modern style web3 wallet, requiring user unlock
+		//modern style web3 wallet (window.ethereum), requiring user unlock
 		if (typeof window.ethereum !== "undefined") {
 
-			// adress is already exposed, soon deprecated?
-			if (window.ethereum.selectedAddress) {
-				this.clientProvider = new ethers.providers.Web3Provider(window.ethereum).getSigner();
-				this.initAccount(window.ethereum.selectedAddress, "metamask", this.clientProvider);
-				callback(window.ethereum.selectedAddress, true, true);
+			// request permission to access wallet and possibly show a popup
+
+			let _that = this;
+
+			/* ethereum.enable() & .request() can respond immediately when already unlocked, or slow when the user has to react to the popup.
+			 Show a help message in the slow case, detected by a timeout */
+			let enableResponse = false;
+			setTimeout(function () {
+				if (!enableResponse) {
+					if (window.ethereum.isMetaMask) {
+						callback("Unlock and connect your account in the MetaMask popup.", true, false);
+					} else {
+						callback("Unlock or enable your Web3 wallet", true, false);
+					}
+				}
+			}, 100);
+
+			//avoid triggering multiple windows
+			if (this.ethereumEnablePending) {
 				return;
 			}
-			else {
-				// request permission to access wallet
+			this.ethereumEnablePending = true;
 
-				let _that = this;
-				let enableResponse = false;
-
-				// .enable() can respond immediately when already unlocked, or slow when the user has to react
-				// delay the check if we should show the help message.
-				setTimeout(function () {
-					if (!enableResponse) {
-						if (window.ethereum.isMetaMask) {
-							callback("Unlock and connect your account in the MetaMask popup.", true, false);
-						} else {
-							callback("Unlock or enable your Web3 wallet", true, false);
-						}
-					}
-				}, 100);
-
-				//avoid triggering multiple windows
-				if (this.ethereumEnablePending) {
-					return;
-				}
-				this.ethereumEnablePending = true;
+			//decide to use the newest ethereum.request or the legacy ethereum.enable
+			if (typeof ethereum.request === "function") {
+				ethereum.request({ method: 'eth_requestAccounts' })
+					.then(handleMetamaskAccounts, handleMetamaskError);
+			} else {
 				ethereum.enable()
-					.then(function (accounts) {
-						_that.ethereumEnablePending = false;
-						enableResponse = true;
-						if (typeof accounts !== "undefined" && accounts.length > 0) {
-							_that.clientProvider = new ethers.providers.Web3Provider(window.ethereum).getSigner();
-							_that.initAccount(accounts[0], "metamask", _that.clientProvider);
-							callback(accounts[0], true, true);
-						} else {
-							console.log("bad enable response");
-						}
-					}, function (error) {
-						_that.ethereumEnablePending = false;
-						enableResponse = true;
-						if (error && ((error.code == 4001) ||
-							(typeof error == "string" && error.indexOf("denied") >= 0) ||
-							(error.message && error.message.indexOf("denied") >= 0))
-						) {
-							callback("You rejected the connection, hit the refresh button to try again.", true, false);
-						} else {
-							callback("Account unlock failed, hit the refresh button to try again.", true, false);
-							console.log("enable request denied");
-						}
-					});
+					.then(handleMetamaskAccounts, handleMetamaskError);
+			}
 
-				/* //future alternative to enableWeb3(), soon to be in metamask?
-				ethereum.send("eth_requestAccounts")
-					.then(function (accounts) {
-					}, function (error) {
-						if (error && error.code === 4001) { // EIP 1193 userRejectedRequest error
-						} else {
-						}
-					}); 
-				*/
+			// succes response for requesting an account from metamask
+			function handleMetamaskAccounts(accounts) {
+				_that.ethereumEnablePending = false;
+				enableResponse = true;
+				if (typeof accounts !== "undefined" && accounts.length > 0) {
+					_that.clientProvider = new ethers.providers.Web3Provider(window.ethereum).getSigner();
+					_that.initAccount(accounts[0], "metamask", _that.clientProvider);
+					callback(accounts[0], true, true);
+				} else {
+					console.log("bad enable response");
+				}
+			}
+
+			// failure response for requesting an account from metamask
+			function handleMetamaskError(error) {
+				_that.ethereumEnablePending = false;
+				enableResponse = true;
+				if (error && ((error.code == 4001) ||
+					(typeof error == "string" && error.indexOf("denied") >= 0) ||
+					(error.message && error.message.indexOf("denied") >= 0) ||
+					(error.message && error.message.indexOf("rejected") >= 0))
+				) {
+					callback("You rejected the connection, hit the refresh button to try again.", true, false);
+				} else {
+					callback("Account unlock failed, hit the refresh button to try again.", true, false);
+					console.log("enable request denied");
+				}
 			}
 		} else {
 			//legacy metamask style with no privacy (window.web3, no window.ethereum)
-			console.log("unlocked web3");
-			this.clientProvider = new ethers.providers.Web3Provider(window.web3.currentProvider);
+			console.log("legacy web3");
 
 			let _that = this;
 			try {
+				this.clientProvider = new ethers.providers.Web3Provider(window.web3.currentProvider);
 				this.clientProvider.getSigner().getAddress().then(addr => {
 					_that.initAccount(addr, "metamask", _that.clientProvider.getSigner());
 					callback("addr", true, true);
