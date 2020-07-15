@@ -15,7 +15,9 @@ You just need a different way to interact with the [token.store smart contract](
 
 ## Token.store
 ----------
-The token.store ETH decentralized exchange is shutting down on June 22 2020.  
+The token.store ETH decentralized exchange was supposed to shut down on June 22 2020.  
+After a short extension, the site stopped around July 12 2020.  
+
 Check the token.store media for info:  
 - Exchange [website](https://token.store)
 - [Twitter](https://twitter.com/TokenDotStore) 
@@ -33,6 +35,15 @@ Please use MetaMask or a similar Web3 wallet, using private keys on a website is
 
 If you don't trust this tool, you can always use the READ-ONLY mode to check your token balances, and withdraw them using an alternative method.
 
+##### How do I cancel my orders?
+You don't need to cancel orders before withdrawing.  
+All your tokens show up in your balances, whether they are in an active order or not. If an order is not 100% filled, all the remaining tokens can be withdrawn at any time.
+After withdrawing all your tokens, the order becomes invalid because there is nothing left to use in a trade.  
+
+##### Where do I find my trade history?
+An overview for all token.store trades can be found on the etherscan [dex tracker](https://etherscan.io/dextracker?filter=15) or [bloxy](https://bloxy.info/txs/events_sc/0x1ce7ae555139c5ef5a57cc8d814a867ee6ee33d8?signature_id=8013).  
+For a trade history of a single address try [DeltaBalances trade history](https://deltabalances.github.io/trades).
+
 ##### My token Withdrawal always fails
 ERC20 tokens can have their settings changed by their creators. Some tokens get Paused, Locked or Disabled.  
 For example for a swap to a new smart contract or a different mainnet.
@@ -46,6 +57,7 @@ For an example of what a locked token looks like, see [this token](https://ether
 - The majority of the transactions to this token fail
 - The last token transfer was in july 2018
 - Etherscan even has an announcement banner.
+
 
 ##### Why don't you support (Ledger, Trezor, ....)?
 The token.store website only offered 2 ways to connect to the account: Private Key and Metamask.
