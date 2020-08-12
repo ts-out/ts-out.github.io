@@ -883,7 +883,7 @@ function validateGasPrice(price) {
 		price = gasAVg;
 	}
 	price = Number(price);
-	const max = 100;
+	const max = 1000;
 	const min = 1;
 	if (price > max)
 		price = max;
