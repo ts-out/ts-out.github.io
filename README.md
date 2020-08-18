@@ -86,7 +86,7 @@ It won't work fully offline because it requires internet to check balances and s
   - Hit query, and copy the resulting number. (this number will often be 10-18x higher than you might think)  
  ![balanceOf example](https://github.com/ts-out/ts-out.github.io/raw/master/img/readme/balanceOf.png)
  
- ![wrtie contract](https://github.com/ts-out/ts-out.github.io/raw/master/img/readme/writeContract.png)
+ ![write contract](https://github.com/ts-out/ts-out.github.io/raw/master/img/readme/writeContract.png)
 - On the Write contract tab
   - Click Connect to Web3 to enable your wallet
   - use `withdrawToken` to withdraw ERC20 tokens or `withdraw` to withdraw ETH (`0x000000000000000000000000000000000000000`)
@@ -101,8 +101,8 @@ It won't work fully offline because it requires internet to check balances and s
 - Head to the Contract tab
 - Enter contract address `0x1cE7AE555139c5EF5A57CC8d814a867ee6Ee33D8`
 - Copy the ABI from below from and paste it in ABI
-  - Now use `balanceOf`, `withdrawToken` and `withdraw` just like insturcted for Etherscan above.
-  - Get your exact balance with `balanceOf`, and withdraw token withs `withdrawToken` and ETH with `withdraw`.
+  - Now use `balanceOf`, `withdrawToken` and `withdraw` just like instructed for Etherscan above.
+  - Get your exact balance with `balanceOf`, and withdraw token with `withdrawToken` and ETH with `withdraw`.
   - Use a higher gas limit, a withdraw might take from 50000 to 250000 gas depending on the token, some even higher.
   (use the ts-out site in READ-ONLY mode to calculate this gas)
 
