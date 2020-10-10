@@ -9,6 +9,7 @@ function Withdraw() {
 	let defaultConfig = {
 		etherscan: config.etherscan,
 		infura: config.infura,
+		alchemy: config.alchemy,
 		quorum: 2,
 	}
 	this.defaultProvider = ethers.getDefaultProvider(config.ethChainId, defaultConfig)  // provider for public etherscan/infura acces to ethereum
